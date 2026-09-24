@@ -38,8 +38,12 @@ expense-tracker-starter/
 ├── src/
 │   ├── assets/
 │   │   └── react.svg         # Default React logo asset (unused in App)
-│   ├── App.css               # Component-level styling for App
-│   ├── App.jsx               # Monolithic main application component
+│   ├── components/
+│   │   ├── Summary.jsx       # Financial summary dashboard cards and calculation
+│   │   ├── TransactionForm.jsx # Transaction input form and state
+│   │   └── TransactionList.jsx # Transaction list table and type/category filters
+│   ├── App.css               # Global and component-level styling
+│   ├── App.jsx               # Main application container component
 │   ├── index.css             # Global base stylesheet (resets and font settings)
 │   └── main.jsx              # React DOM mounting entry point (<StrictMode>)
 ├── Docs/
@@ -55,7 +59,10 @@ expense-tracker-starter/
 
 ### Key File Responsibilities
 - `src/main.jsx`: Mounts the `<App />` component into `#root` in `index.html`.
-- `src/App.jsx`: Houses all application logic, state hooks, calculation logic, form submission, filtering, and table rendering in a single component.
+- `src/App.jsx`: Main application container holding `transactions` state and composing child components.
+- `src/components/Summary.jsx`: Calculates and displays total income, total expenses, and net balance.
+- `src/components/TransactionForm.jsx`: Manages form inputs and triggers transaction addition.
+- `src/components/TransactionList.jsx`: Handles filtering (by type and category) and renders the transactions table.
 - `src/App.css`: Defines layout, summary card, form, filter, table, and button styles.
 - `src/index.css`: Global box-sizing reset (`border-box`) and basic body styles.
 - `vite.config.js`: Sets up Vite with `@vitejs/plugin-react`.
@@ -65,12 +72,13 @@ expense-tracker-starter/
 
 ## 4. Architecture
 
-- **Pattern**: Client-only, single-component monolithic React application.
+- **Pattern**: Client-only React component tree with unidirectional data flow.
 - **Data Flow**:
-  1. **State Store**: All state resides locally within `App` using React `useState` hooks (`transactions`, `description`, `amount`, `type`, `category`, `filterType`, `filterCategory`).
-  2. **Derived Computations**: `totalIncome`, `totalExpenses`, `balance`, and `filteredTransactions` are recalculated synchronously during each render based on `transactions` and current filter state.
-  3. **User Action / Mutation**: Submitting the form (`handleSubmit`) constructs a new transaction object and prepends/appends it via `setTransactions([...transactions, newTransaction])`.
-- **Boundaries**: Currently no separation of concerns. UI presentation, state management, validation, and business calculations are combined in `src/App.jsx`.
+  1. **Top-Level State Store**: `App` maintains the master `transactions` array via React `useState`.
+  2. **Summary**: `Summary` receives `transactions` prop and derives `totalIncome`, `totalExpenses`, and `balance`.
+  3. **Transaction Creation**: `TransactionForm` encapsulates form field state and notifies `App` via `onAddTransaction(newTransaction)`.
+  4. **Transaction Listing & Filtering**: `TransactionList` receives `transactions`, manages `filterType` and `filterCategory` internally, and renders the filtered rows.
+- **Boundaries**: Clear separation between container (`App`), summary presentation & metrics (`Summary`), transaction input (`TransactionForm`), and listing/filtering (`TransactionList`).
 
 ---
 
@@ -201,8 +209,8 @@ expense-tracker-starter/
    - No `localStorage` or backend storage. All changes are lost upon reload.
 5. **No Input Validation / Formatting**:
    - No check for numeric positivity, NaN, or decimal currency formatting (`.toFixed(2)`).
-6. **Monolithic Architecture**:
-   - `App.jsx` combines state, UI, calculations, and tables into one file without modular components (e.g., `TransactionForm`, `TransactionList`, `SummaryCards`, `FilterBar`).
+6. **Monolithic Architecture (Resolved)**:
+   - Successfully modularized into separate components: `Summary.jsx`, `TransactionForm.jsx`, and `TransactionList.jsx` in `src/components/`.
 7. **Empty Pre-existing Docs**:
    - `Docs/AGENT.md` exists as an empty 0-byte file in an untracked directory.
 
