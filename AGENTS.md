@@ -128,7 +128,7 @@ expense-tracker-starter/
   {
     id: number,          // Initial items: 1..8; new items: Date.now()
     description: string, // e.g. "Salary"
-    amount: string,      // NOTE: currently stored as string (e.g., "5000")
+    amount: number,      // Numeric value (e.g., 5000)
     type: string,        // "income" | "expense"
     category: string,    // "food" | "housing" | "utilities" | "transport" | "entertainment" | "salary" | "other"
     date: string         // "YYYY-MM-DD"
@@ -189,10 +189,9 @@ expense-tracker-starter/
 - Basic tabular layout displaying date, description, category, and signed amount.
 
 ### Known Inconsistencies, Bugs & Incomplete Areas
-1. **String Concatenation Calculation Bug (Critical)**:
-   - Initial transactions and form inputs store `amount` as strings (e.g. `"5000"`).
-   - In `App.jsx`, `reduce((sum, t) => sum + t.amount, 0)` produces string concatenation (e.g. `0 + "5000"` becomes `"05000"`, and expenses become `"0120015080095654515"`).
-   - Balance computation (`totalIncome - totalExpenses`) subtracts these string representations.
+1. **String Concatenation Calculation Bug (Resolved)**:
+   - Previously stored amounts as strings and concatenated them during reduction.
+   - Now resolved: `amount` is stored as a number in both initial state and form submissions, and `reduce` sums numerically.
 2. **Incorrect Seed Data**:
    - Transaction id 4 (`"Freelance Work"`, amount `800`) is tagged as `type: "expense"` with `category: "salary"`, which is logically income.
 3. **Orphaned / Incomplete Delete Feature**:
