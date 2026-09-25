@@ -169,7 +169,7 @@ expense-tracker-starter/
   ```bash
   npm run lint
   ```
-- **Testing / Type checking**: No test runner or type check scripts currently exist in `package.json`.
+- **Testing / Type checking**: `npm test` runs lint verification via `npm run lint`. No standalone unit test runner is configured yet.
 
 ---
 
