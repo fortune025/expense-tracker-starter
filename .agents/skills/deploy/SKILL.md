@@ -70,9 +70,9 @@ Confirm deployment success:
 For convenience, automated deployment scripts are available:
 - **Windows (PowerShell)**: [deploy.ps1](./scripts/deploy.ps1)
   ```powershell
-  powershell -ExecutionPolicy Bypass -File .agent/skills/deploy/scripts/deploy.ps1
+  powershell -ExecutionPolicy Bypass -File .agents/skills/deploy/scripts/deploy.ps1
   ```
 - **macOS / Linux (Bash)**: [deploy.sh](./scripts/deploy.sh)
   ```bash
-  ./.agent/skills/deploy/scripts/deploy.sh
+  ./.agents/skills/deploy/scripts/deploy.sh
   ```
