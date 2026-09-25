@@ -14,34 +14,42 @@ import {
 } from 'recharts';
 
 const CATEGORY_COLORS = {
-  Food: '#FF8042',
-  Housing: '#0088FE',
-  Utilities: '#FFBB28',
-  Transport: '#00C49F',
-  Entertainment: '#8884D8',
-  Salary: '#82CA9D',
-  Other: '#A4A4A4',
+  Food: '#f97316',
+  Housing: '#3b82f6',
+  Utilities: '#eab308',
+  Transport: '#06b6d4',
+  Entertainment: '#8b5cf6',
+  Salary: '#10b981',
+  Other: '#64748b',
 };
 
 const FALLBACK_COLORS = [
-  '#0088FE',
-  '#00C49F',
-  '#FFBB28',
-  '#FF8042',
-  '#8884D8',
-  '#82CA9D',
-  '#FF6B6B',
-  '#20B2AA',
+  '#3b82f6',
+  '#10b981',
+  '#f97316',
+  '#8b5cf6',
+  '#06b6d4',
+  '#eab308',
+  '#ec4899',
+  '#64748b',
 ];
 
 const getColor = (category, index) => {
   return CATEGORY_COLORS[category] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
 };
 
+const formatCurrency = (val) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(val);
+};
+
 function SpendingChart({ transactions = [] }) {
   const [chartType, setChartType] = useState('pie');
 
-  // Filter only expenses and aggregate by category
   const expenseTransactions = transactions.filter((t) => t.type === 'expense');
 
   const categoryTotals = expenseTransactions.reduce((acc, t) => {
@@ -66,9 +74,9 @@ function SpendingChart({ transactions = [] }) {
     <div className="spending-chart-section">
       <div className="chart-header">
         <div>
-          <h2>Spending by Category</h2>
-          <span className="chart-subtitle">
-            Total expenses: ${totalExpense.toFixed(2)}
+          <h2>Spending Breakdown</h2>
+          <span className="section-hint">
+            {data.length} categories · Total expenses: {formatCurrency(totalExpense)}
           </span>
         </div>
         <div className="chart-type-toggle">
@@ -77,25 +85,25 @@ function SpendingChart({ transactions = [] }) {
             className={`toggle-btn ${chartType === 'pie' ? 'active' : ''}`}
             onClick={() => setChartType('pie')}
           >
-            Pie Chart
+            Donut
           </button>
           <button
             type="button"
             className={`toggle-btn ${chartType === 'bar' ? 'active' : ''}`}
             onClick={() => setChartType('bar')}
           >
-            Bar Chart
+            Bars
           </button>
         </div>
       </div>
 
       {data.length === 0 ? (
         <div className="chart-empty-state">
-          <p>No expense data available to display.</p>
+          <p>No expense data recorded yet.</p>
         </div>
       ) : (
-        <div className="chart-container" style={{ width: '100%', height: 300 }}>
-          <ResponsiveContainer width="100%" height={300}>
+        <div className="chart-container" style={{ width: '100%', height: 280 }}>
+          <ResponsiveContainer width="100%" height={280}>
             {chartType === 'pie' ? (
               <PieChart>
                 <Pie
@@ -105,11 +113,10 @@ function SpendingChart({ transactions = [] }) {
                   cx="50%"
                   cy="50%"
                   outerRadius={95}
-                  innerRadius={48}
-                  paddingAngle={3}
-                  label={({ percent }) =>
-                    percent > 0.05 ? `${(percent * 100).toFixed(0)}%` : ''
-                  }
+                  innerRadius={55}
+                  paddingAngle={4}
+                  stroke="#ffffff"
+                  strokeWidth={2}
                 >
                   {data.map((entry, index) => (
                     <Cell
@@ -119,35 +126,65 @@ function SpendingChart({ transactions = [] }) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Spent']}
+                  formatter={(value) => [formatCurrency(Number(value)), 'Spent']}
+                  contentStyle={{
+                    backgroundColor: '#0f172a',
+                    borderRadius: '8px',
+                    border: 'none',
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    fontSize: '12px',
+                  }}
+                  itemStyle={{ color: '#fff' }}
                 />
-                <Legend />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  iconType="circle"
+                  iconSize={8}
+                  formatter={(value) => (
+                    <span style={{ color: '#475569', fontSize: '12px', fontWeight: 500 }}>
+                      {value}
+                    </span>
+                  )}
+                />
               </PieChart>
             ) : (
               <BarChart
                 data={data}
-                margin={{ top: 10, right: 15, left: 10, bottom: 25 }}
+                margin={{ top: 12, right: 16, left: 10, bottom: 25 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
                 <XAxis
                   dataKey="category"
-                  stroke="#666"
+                  stroke="#94a3b8"
                   fontSize={12}
                   tickLine={false}
+                  axisLine={{ stroke: '#e2e8f0' }}
                   interval={0}
-                  angle={-15}
+                  angle={-10}
                   textAnchor="end"
                 />
                 <YAxis
-                  stroke="#666"
-                  fontSize={12}
+                  stroke="#94a3b8"
+                  fontSize={11}
                   tickLine={false}
+                  axisLine={false}
                   tickFormatter={(val) => `$${val}`}
                 />
                 <Tooltip
-                  formatter={(value) => [`$${Number(value).toFixed(2)}`, 'Spent']}
+                  formatter={(value) => [formatCurrency(Number(value)), 'Spent']}
+                  contentStyle={{
+                    backgroundColor: '#0f172a',
+                    borderRadius: '8px',
+                    border: 'none',
+                    color: '#fff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    fontSize: '12px',
+                  }}
+                  itemStyle={{ color: '#fff' }}
                 />
-                <Bar dataKey="amount" radius={[4, 4, 0, 0]}>
+                <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
                   {data.map((entry, index) => (
                     <Cell
                       key={`bar-${entry.category}-${index}`}

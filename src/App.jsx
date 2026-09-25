@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import Summary from './components/Summary'
-import SpendingChart from './components/SpendingChart'
-import TransactionForm from './components/TransactionForm'
-import TransactionList from './components/TransactionList'
-import './App.css'
+import { useState } from 'react';
+import Summary from './components/Summary';
+import SpendingChart from './components/SpendingChart';
+import TransactionForm from './components/TransactionForm';
+import TransactionList from './components/TransactionList';
+import './App.css';
 
 function App() {
   const [transactions, setTransactions] = useState([
@@ -29,18 +29,40 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Finance Tracker</h1>
-      <p className="subtitle">Track your income and expenses</p>
+      <header className="app-header">
+        <div className="brand">
+          <div className="brand-logo" aria-hidden="true">◆</div>
+          <div>
+            <h1>Finance Tracker</h1>
+            <p className="subtitle">Real-time cashflow & expense ledger</p>
+          </div>
+        </div>
+        <div className="header-meta">
+          <span className="status-pill">
+            <span className="status-dot"></span> Live Ledger
+          </span>
+        </div>
+      </header>
 
-      <Summary transactions={transactions} />
-      <SpendingChart transactions={transactions} />
-      <TransactionForm onAddTransaction={handleAddTransaction} />
-      <TransactionList
-        transactions={transactions}
-        onDeleteTransaction={handleDeleteTransaction}
-      />
+      <main className="app-main">
+        <Summary transactions={transactions} />
+
+        <div className="dashboard-grid">
+          <div className="grid-col-chart">
+            <SpendingChart transactions={transactions} />
+          </div>
+          <div className="grid-col-form">
+            <TransactionForm onAddTransaction={handleAddTransaction} />
+          </div>
+        </div>
+
+        <TransactionList
+          transactions={transactions}
+          onDeleteTransaction={handleDeleteTransaction}
+        />
+      </main>
     </div>
   );
 }
 
-export default App
+export default App;
