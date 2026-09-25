@@ -13,38 +13,29 @@ import {
   Legend,
 } from 'recharts';
 
-const CATEGORY_COLORS = {
-  Food: '#f97316',
-  Housing: '#3b82f6',
-  Utilities: '#eab308',
-  Transport: '#06b6d4',
-  Entertainment: '#8b5cf6',
-  Salary: '#10b981',
-  Other: '#64748b',
+const NORDIC_CATEGORY_COLORS = {
+  Food: '#F59E0B',
+  Housing: '#0284C7',
+  Utilities: '#EAB308',
+  Transport: '#10B981',
+  Entertainment: '#8B5CF6',
+  Salary: '#059669',
+  Other: '#9CA3AF',
 };
 
-const FALLBACK_COLORS = [
-  '#3b82f6',
-  '#10b981',
-  '#f97316',
-  '#8b5cf6',
-  '#06b6d4',
-  '#eab308',
-  '#ec4899',
-  '#64748b',
+const FALLBACK_PALETTE = [
+  '#0284C7',
+  '#10B981',
+  '#F59E0B',
+  '#8B5CF6',
+  '#EC4899',
+  '#14B8A6',
+  '#F97316',
+  '#64748B',
 ];
 
 const getColor = (category, index) => {
-  return CATEGORY_COLORS[category] || FALLBACK_COLORS[index % FALLBACK_COLORS.length];
-};
-
-const formatCurrency = (val) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(val);
+  return NORDIC_CATEGORY_COLORS[category] || FALLBACK_PALETTE[index % FALLBACK_PALETTE.length];
 };
 
 function SpendingChart({ transactions = [] }) {
@@ -70,16 +61,22 @@ function SpendingChart({ transactions = [] }) {
 
   const totalExpense = data.reduce((sum, item) => sum + item.amount, 0);
 
+  const formatCurrency = (val) =>
+    Number(val).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
   return (
     <div className="spending-chart-section">
       <div className="chart-header">
         <div>
           <h2>Spending Breakdown</h2>
-          <span className="section-hint">
-            {data.length} categories · Total expenses: {formatCurrency(totalExpense)}
+          <span className="chart-subtitle">
+            Outflow: ${formatCurrency(totalExpense)} across {data.length} categories
           </span>
         </div>
-        <div className="chart-type-toggle">
+        <div className="chart-type-toggle" role="group" aria-label="Chart view selector">
           <button
             type="button"
             className={`toggle-btn ${chartType === 'pie' ? 'active' : ''}`}
@@ -112,11 +109,14 @@ function SpendingChart({ transactions = [] }) {
                   nameKey="category"
                   cx="50%"
                   cy="50%"
-                  outerRadius={95}
-                  innerRadius={55}
-                  paddingAngle={4}
+                  outerRadius={88}
+                  innerRadius={52}
+                  paddingAngle={3}
                   stroke="#ffffff"
                   strokeWidth={2}
+                  label={({ percent }) =>
+                    percent > 0.08 ? `${(percent * 100).toFixed(0)}%` : ''
+                  }
                 >
                   {data.map((entry, index) => (
                     <Cell
@@ -126,63 +126,59 @@ function SpendingChart({ transactions = [] }) {
                   ))}
                 </Pie>
                 <Tooltip
-                  formatter={(value) => [formatCurrency(Number(value)), 'Spent']}
+                  formatter={(value) => [`$${formatCurrency(value)}`, 'Spent']}
                   contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderRadius: '8px',
-                    border: 'none',
-                    color: '#fff',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    fontSize: '12px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #eae9e4',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 16px rgba(20, 30, 25, 0.08)',
+                    fontSize: '13px',
+                    fontFamily: 'var(--font-body)',
                   }}
-                  itemStyle={{ color: '#fff' }}
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={36}
                   iconType="circle"
                   iconSize={8}
-                  formatter={(value) => (
-                    <span style={{ color: '#475569', fontSize: '12px', fontWeight: 500 }}>
-                      {value}
-                    </span>
-                  )}
+                  wrapperStyle={{
+                    paddingTop: '8px',
+                    fontSize: '12px',
+                    color: '#787875',
+                  }}
                 />
               </PieChart>
             ) : (
               <BarChart
                 data={data}
-                margin={{ top: 12, right: 16, left: 10, bottom: 25 }}
+                margin={{ top: 12, right: 10, left: -10, bottom: 20 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0efe9" vertical={false} />
                 <XAxis
                   dataKey="category"
-                  stroke="#94a3b8"
-                  fontSize={12}
+                  stroke="#a0a09c"
+                  fontSize={11}
                   tickLine={false}
-                  axisLine={{ stroke: '#e2e8f0' }}
                   interval={0}
-                  angle={-10}
+                  angle={-15}
                   textAnchor="end"
                 />
                 <YAxis
-                  stroke="#94a3b8"
+                  stroke="#a0a09c"
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(val) => `$${val}`}
                 />
                 <Tooltip
-                  formatter={(value) => [formatCurrency(Number(value)), 'Spent']}
+                  formatter={(value) => [`$${formatCurrency(value)}`, 'Spent']}
                   contentStyle={{
-                    backgroundColor: '#0f172a',
-                    borderRadius: '8px',
-                    border: 'none',
-                    color: '#fff',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                    fontSize: '12px',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #eae9e4',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 16px rgba(20, 30, 25, 0.08)',
+                    fontSize: '13px',
+                    fontFamily: 'var(--font-body)',
                   }}
-                  itemStyle={{ color: '#fff' }}
                 />
                 <Bar dataKey="amount" radius={[6, 6, 0, 0]}>
                   {data.map((entry, index) => (

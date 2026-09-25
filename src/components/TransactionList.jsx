@@ -11,29 +11,14 @@ const DEFAULT_CATEGORIES = [
   'other',
 ];
 
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  try {
-    const [year, month, day] = dateString.split('-');
-    if (!year || !month || !day) return dateString;
-    const date = new Date(Number(year), Number(month) - 1, Number(day));
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
+const CATEGORY_ICONS = {
+  food: '🥗',
+  housing: '🏡',
+  utilities: '⚡',
+  transport: '🚲',
+  entertainment: '🎟️',
+  salary: '💼',
+  other: '🪙',
 };
 
 function TransactionList({
@@ -66,31 +51,57 @@ function TransactionList({
     }
   };
 
+  const capitalize = (str) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+  const formatCurrency = (val) =>
+    Number(val).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+  const formatDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+      }
+      return dateStr;
+    } catch {
+      return dateStr;
+    }
+  };
+
   return (
-    <div className="transactions">
-      <div className="transactions-header-bar">
+    <section className="transactions" aria-label="Transaction Ledger">
+      <div className="transactions-header">
         <div>
-          <h2>Transaction History</h2>
-          <span className="section-hint">
-            Showing {filteredTransactions.length} of {transactions.length}{' '}
-            entries
+          <h2>Ledger History</h2>
+          <span className="transactions-count">
+            Showing {filteredTransactions.length} of {transactions.length} entries
           </span>
         </div>
 
         <div className="filters">
-          <div className="filter-select-wrapper">
+          <div className="select-wrapper">
             <select
               value={filterType}
               onChange={(e) => setFilterType(e.target.value)}
               aria-label="Filter by type"
             >
               <option value="all">All Types</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
+              <option value="income">Inflow Only</option>
+              <option value="expense">Outflow Only</option>
             </select>
           </div>
 
-          <div className="filter-select-wrapper">
+          <div className="select-wrapper">
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
@@ -99,7 +110,7 @@ function TransactionList({
               <option value="all">All Categories</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {capitalize(cat)}
                 </option>
               ))}
             </select>
@@ -107,82 +118,80 @@ function TransactionList({
         </div>
       </div>
 
-      <div className="table-responsive-container">
-        <table>
-          <thead>
-            <tr>
-              <th className="col-date">Date</th>
-              <th className="col-desc">Description</th>
-              <th className="col-category">Category</th>
-              <th className="col-amount">Amount</th>
-              <th className="col-action"><span className="sr-only">Actions</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredTransactions.length === 0 ? (
+      {filteredTransactions.length === 0 ? (
+        <div className="transactions-empty">
+          <p>No transactions match the selected filter criteria.</p>
+        </div>
+      ) : (
+        <div className="table-container">
+          <table>
+            <thead>
               <tr>
-                <td colSpan="5" className="empty-table-cell">
-                  <div className="empty-state">
-                    <p>No transactions match your current filters.</p>
-                  </div>
-                </td>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th className="th-amount">Amount</th>
+                <th className="th-actions" aria-label="Actions"></th>
               </tr>
-            ) : (
-              filteredTransactions.map((t) => (
-                <tr key={t.id} className="transaction-row">
-                  <td className="col-date text-muted">
-                    {formatDate(t.date)}
-                  </td>
-                  <td className="col-desc font-medium">
-                    {t.description}
-                  </td>
-                  <td className="col-category">
-                    <span className={`category-tag tag-${t.category || 'other'}`}>
-                      {t.category ? t.category.charAt(0).toUpperCase() + t.category.slice(1) : 'Other'}
-                    </span>
-                  </td>
-                  <td className="col-amount">
-                    <span
-                      className={`amount-badge ${
-                        t.type === 'income' ? 'income-amount' : 'expense-amount'
+            </thead>
+            <tbody>
+              {filteredTransactions.map((t) => {
+                const isIncome = t.type === 'income';
+                const catLower = (t.category || 'other').toLowerCase();
+                const icon = CATEGORY_ICONS[catLower] || '🪙';
+
+                return (
+                  <tr key={t.id} className="transaction-row">
+                    <td className="td-date">{formatDate(t.date)}</td>
+                    <td className="td-desc">
+                      <span className="desc-text">{t.description}</span>
+                    </td>
+                    <td className="td-category">
+                      <span className={`category-pill cat-${catLower}`}>
+                        <span className="cat-icon">{icon}</span>
+                        {capitalize(t.category || 'other')}
+                      </span>
+                    </td>
+                    <td
+                      className={`td-amount ${
+                        isIncome ? 'income-amount' : 'expense-amount'
                       }`}
                     >
-                      {t.type === 'income' ? '+' : '-'}
-                      {formatCurrency(t.amount)}
-                    </span>
-                  </td>
-                  <td className="col-action">
-                    <button
-                      type="button"
-                      className="delete-btn"
-                      onClick={() => setTransactionToDelete(t)}
-                      title={`Delete ${t.description}`}
-                      aria-label={`Delete ${t.description}`}
-                    >
-                      ✕
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                      {isIncome ? '+' : '-'}${formatCurrency(t.amount)}
+                    </td>
+                    <td className="td-actions">
+                      <button
+                        type="button"
+                        className="delete-btn"
+                        onClick={() => setTransactionToDelete(t)}
+                        title="Delete transaction"
+                        aria-label={`Delete ${t.description}`}
+                      >
+                        Remove
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <ConfirmationModal
         isOpen={Boolean(transactionToDelete)}
-        title="Delete Transaction"
+        title="Remove Transaction"
         message={
           transactionToDelete
-            ? `Are you sure you want to delete "${transactionToDelete.description}" (${formatCurrency(
+            ? `Are you sure you want to remove "${transactionToDelete.description}" ($${formatCurrency(
                 transactionToDelete.amount
-              )})?`
+              )})? This action cannot be undone.`
             : ''
         }
         onConfirm={handleDeleteConfirm}
         onCancel={() => setTransactionToDelete(null)}
       />
-    </div>
+    </section>
   );
 }
 

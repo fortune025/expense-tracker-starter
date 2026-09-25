@@ -1,12 +1,3 @@
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
 function Summary({ transactions = [] }) {
   const totalIncome = transactions
     .filter((t) => t.type === 'income')
@@ -17,40 +8,49 @@ function Summary({ transactions = [] }) {
     .reduce((sum, t) => sum + Number(t.amount), 0);
 
   const balance = totalIncome - totalExpenses;
-  const savingsRate = totalIncome > 0 ? Math.round(((totalIncome - totalExpenses) / totalIncome) * 100) : 0;
+  const isPositive = balance >= 0;
+
+  const formatCurrency = (val) =>
+    Number(val).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
 
   return (
-    <div className="summary">
-      <div className="summary-card summary-card-primary">
-        <div className="summary-card-header">
+    <section className="summary" aria-label="Financial Summary">
+      <div className="summary-card balance-card">
+        <div className="card-header-row">
           <h3>Net Balance</h3>
-          {totalIncome > 0 && (
-            <span className={`summary-badge ${balance >= 0 ? 'badge-positive' : 'badge-negative'}`}>
-              {savingsRate}% saved
-            </span>
-          )}
+          <span className={`status-pill ${isPositive ? 'positive' : 'negative'}`}>
+            {isPositive ? 'In Surplus' : 'Deficit'}
+          </span>
         </div>
-        <p className={`balance-amount ${balance < 0 ? 'negative-balance' : ''}`}>
-          {formatCurrency(balance)}
+        <p className={`balance-amount ${isPositive ? 'positive' : 'negative'}`}>
+          {balance < 0 ? `-$${formatCurrency(Math.abs(balance))}` : `$${formatCurrency(balance)}`}
         </p>
+        <span className="summary-caption">Available liquidity across tracked accounts</span>
       </div>
 
-      <div className="summary-card">
-        <div className="summary-card-header">
-          <h3>Total Income</h3>
-          <span className="summary-icon income-icon" aria-hidden="true">↓</span>
+      <div className="summary-subcards">
+        <div className="summary-card income-card">
+          <div className="card-header-row">
+            <h3>Total Income</h3>
+            <span className="metric-indicator income-dot" aria-hidden="true" />
+          </div>
+          <p className="income-amount">+${formatCurrency(totalIncome)}</p>
+          <span className="summary-caption">All recorded earnings</span>
         </div>
-        <p className="income-amount">{formatCurrency(totalIncome)}</p>
-      </div>
 
-      <div className="summary-card">
-        <div className="summary-card-header">
-          <h3>Total Expenses</h3>
-          <span className="summary-icon expense-icon" aria-hidden="true">↑</span>
+        <div className="summary-card expense-card">
+          <div className="card-header-row">
+            <h3>Total Expenses</h3>
+            <span className="metric-indicator expense-dot" aria-hidden="true" />
+          </div>
+          <p className="expense-amount">-${formatCurrency(totalExpenses)}</p>
+          <span className="summary-caption">Total outflows</span>
         </div>
-        <p className="expense-amount">{formatCurrency(totalExpenses)}</p>
       </div>
-    </div>
+    </section>
   );
 }
 

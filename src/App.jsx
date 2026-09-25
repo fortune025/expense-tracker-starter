@@ -30,37 +30,24 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <div className="brand">
-          <div className="brand-logo" aria-hidden="true">◆</div>
-          <div>
-            <h1>Finance Tracker</h1>
-            <p className="subtitle">Real-time cashflow & expense ledger</p>
-          </div>
+        <div>
+          <h1>Finance Tracker</h1>
+          <p className="subtitle">Track your income and expenses with clarity</p>
         </div>
-        <div className="header-meta">
-          <span className="status-pill">
-            <span className="status-dot"></span> Live Ledger
-          </span>
-        </div>
+
       </header>
 
-      <main className="app-main">
-        <Summary transactions={transactions} />
+      <Summary transactions={transactions} />
 
-        <div className="dashboard-grid">
-          <div className="grid-col-chart">
-            <SpendingChart transactions={transactions} />
-          </div>
-          <div className="grid-col-form">
-            <TransactionForm onAddTransaction={handleAddTransaction} />
-          </div>
-        </div>
+      <div className="app-grid">
+        <SpendingChart transactions={transactions} />
+        <TransactionForm onAddTransaction={handleAddTransaction} />
+      </div>
 
-        <TransactionList
-          transactions={transactions}
-          onDeleteTransaction={handleDeleteTransaction}
-        />
-      </main>
+      <TransactionList
+        transactions={transactions}
+        onDeleteTransaction={handleDeleteTransaction}
+      />
     </div>
   );
 }

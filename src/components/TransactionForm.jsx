@@ -22,7 +22,7 @@ function TransactionForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!description.trim() || !amount || Number(amount) <= 0) return;
+    if (!description || !amount) return;
 
     const newTransaction = {
       id: Date.now(),
@@ -44,77 +44,57 @@ function TransactionForm({
     setCategory('food');
   };
 
+  const capitalize = (str) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
   return (
     <div className="add-transaction">
-      <div className="section-header">
-        <h2>Add Transaction</h2>
-        <span className="section-hint">Log a new income or expense</span>
+      <div className="form-header">
+        <h2>Quick Entry</h2>
+        <span className="form-subtitle">Record an inflow or outflow</span>
       </div>
 
       <form onSubmit={handleSubmit} className="transaction-form-grid">
-        <div className="form-type-group">
-          <label className="field-label">Type</label>
-          <div className="type-toggle-pill">
-            <button
-              type="button"
-              className={`type-btn ${type === 'expense' ? 'active expense' : ''}`}
-              onClick={() => {
-                setType('expense');
-                if (category === 'salary') setCategory('food');
-              }}
-            >
-              Expense
-            </button>
-            <button
-              type="button"
-              className={`type-btn ${type === 'income' ? 'active income' : ''}`}
-              onClick={() => {
-                setType('income');
-                setCategory('salary');
-              }}
-            >
-              Income
-            </button>
-          </div>
-        </div>
-
-        <div className="form-field form-field-desc">
-          <label htmlFor="tx-description" className="field-label">
-            Description
-          </label>
+        <div className="form-group form-group-desc">
+          <label htmlFor="tx-desc">Description</label>
           <input
-            id="tx-description"
+            id="tx-desc"
             type="text"
-            placeholder="e.g. Weekly Groceries"
+            placeholder="e.g., Grocery Market"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
           />
         </div>
 
-        <div className="form-field form-field-amount">
-          <label htmlFor="tx-amount" className="field-label">
-            Amount
-          </label>
-          <div className="input-currency-wrapper">
-            <span className="currency-symbol">$</span>
-            <input
-              id="tx-amount"
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              required
-            />
-          </div>
+        <div className="form-group form-group-amt">
+          <label htmlFor="tx-amount">Amount ($)</label>
+          <input
+            id="tx-amount"
+            type="number"
+            step="0.01"
+            min="0.01"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+          />
         </div>
 
-        <div className="form-field form-field-category">
-          <label htmlFor="tx-category" className="field-label">
-            Category
-          </label>
+        <div className="form-group form-group-type">
+          <label htmlFor="tx-type">Type</label>
+          <select
+            id="tx-type"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+
+        <div className="form-group form-group-cat">
+          <label htmlFor="tx-category">Category</label>
           <select
             id="tx-category"
             value={category}
@@ -122,15 +102,15 @@ function TransactionForm({
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {capitalize(cat)}
               </option>
             ))}
           </select>
         </div>
 
-        <div className="form-action">
+        <div className="form-actions">
           <button type="submit" className="submit-btn">
-            + Record
+            Add Entry
           </button>
         </div>
       </form>
