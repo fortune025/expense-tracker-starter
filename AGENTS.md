@@ -39,9 +39,10 @@ expense-tracker-starter/
 │   ├── assets/
 │   │   └── react.svg         # Default React logo asset (unused in App)
 │   ├── components/
+│   │   ├── ConfirmationModal.jsx # Reusable confirmation dialogue box modal
 │   │   ├── Summary.jsx       # Financial summary dashboard cards and calculation
 │   │   ├── TransactionForm.jsx # Transaction input form and state
-│   │   └── TransactionList.jsx # Transaction list table and type/category filters
+│   │   └── TransactionList.jsx # Transaction list table, delete actions, and filters
 │   ├── App.css               # Global and component-level styling
 │   ├── App.jsx               # Main application container component
 │   ├── index.css             # Global base stylesheet (resets and font settings)
@@ -60,10 +61,11 @@ expense-tracker-starter/
 ### Key File Responsibilities
 - `src/main.jsx`: Mounts the `<App />` component into `#root` in `index.html`.
 - `src/App.jsx`: Main application container holding `transactions` state and composing child components.
+- `src/components/ConfirmationModal.jsx`: Modal dialog prompting user confirmation before destructive actions.
 - `src/components/Summary.jsx`: Calculates and displays total income, total expenses, and net balance.
 - `src/components/TransactionForm.jsx`: Manages form inputs and triggers transaction addition.
-- `src/components/TransactionList.jsx`: Handles filtering (by type and category) and renders the transactions table.
-- `src/App.css`: Defines layout, summary card, form, filter, table, and button styles.
+- `src/components/TransactionList.jsx`: Handles filtering, rendering transaction rows, and triggering delete confirmations.
+- `src/App.css`: Defines layout, summary card, form, filter, table, modal, and button styles.
 - `src/index.css`: Global box-sizing reset (`border-box`) and basic body styles.
 - `vite.config.js`: Sets up Vite with `@vitejs/plugin-react`.
 - `eslint.config.js`: Configures flat ESLint rules with React Hooks and React Refresh plugins.
@@ -202,9 +204,8 @@ expense-tracker-starter/
    - Now resolved: `amount` is stored as a number in both initial state and form submissions, and `reduce` sums numerically.
 2. **Incorrect Seed Data**:
    - Transaction id 4 (`"Freelance Work"`, amount `800`) is tagged as `type: "expense"` with `category: "salary"`, which is logically income.
-3. **Orphaned / Incomplete Delete Feature**:
-   - `src/App.css` defines `.delete-btn` styles (lines 141-148).
-   - `src/App.jsx` has empty rows in `<thead>` (line 135) and `<tbody>` (line 147), but no delete button or delete handler is implemented.
+3. **Orphaned / Incomplete Delete Feature (Resolved)**:
+   - Successfully implemented transaction deletion with `.delete-btn`, a reusable `ConfirmationModal` dialogue box, and dynamic summary metric recalculations.
 4. **No Persistence**:
    - No `localStorage` or backend storage. All changes are lost upon reload.
 5. **No Input Validation / Formatting**:

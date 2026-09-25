@@ -1,10 +1,17 @@
 import { useState } from 'react'
+import ConfirmationModal from './ConfirmationModal'
 
 const DEFAULT_CATEGORIES = ["food", "housing", "utilities", "transport", "entertainment", "salary", "other"];
 
-function TransactionList({ transactions = [], categories = DEFAULT_CATEGORIES }) {
+function TransactionList({
+  transactions = [],
+  categories = DEFAULT_CATEGORIES,
+  onDeleteTransaction,
+  onDelete,
+}) {
   const [filterType, setFilterType] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
 
   let filteredTransactions = transactions;
   if (filterType !== "all") {
@@ -13,6 +20,14 @@ function TransactionList({ transactions = [], categories = DEFAULT_CATEGORIES })
   if (filterCategory !== "all") {
     filteredTransactions = filteredTransactions.filter(t => t.category === filterCategory);
   }
+
+  const handleDeleteConfirm = () => {
+    if (transactionToDelete) {
+      const deleteFn = onDeleteTransaction || onDelete;
+      deleteFn?.(transactionToDelete.id);
+      setTransactionToDelete(null);
+    }
+  };
 
   return (
     <div className="transactions">
@@ -38,7 +53,7 @@ function TransactionList({ transactions = [], categories = DEFAULT_CATEGORIES })
             <th>Description</th>
             <th>Category</th>
             <th>Amount</th>
-
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -50,11 +65,31 @@ function TransactionList({ transactions = [], categories = DEFAULT_CATEGORIES })
               <td className={t.type === "income" ? "income-amount" : "expense-amount"}>
                 {t.type === "income" ? "+" : "-"}${t.amount}
               </td>
-
+              <td>
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={() => setTransactionToDelete(t)}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <ConfirmationModal
+        isOpen={Boolean(transactionToDelete)}
+        title="Delete Transaction"
+        message={
+          transactionToDelete
+            ? `Are you sure you want to delete "${transactionToDelete.description}" ($${transactionToDelete.amount})?`
+            : ""
+        }
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setTransactionToDelete(null)}
+      />
     </div>
   );
 }
