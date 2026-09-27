@@ -1,3 +1,5 @@
+import { formatCurrency } from '../utils/formatters';
+
 function Summary({ transactions = [] }) {
   const totalIncome = transactions
     .filter((t) => t.type === 'income')
@@ -9,12 +11,6 @@ function Summary({ transactions = [] }) {
 
   const balance = totalIncome - totalExpenses;
   const isPositive = balance >= 0;
-
-  const formatCurrency = (val) =>
-    Number(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
   return (
     <section className="summary" aria-label="Financial Summary">

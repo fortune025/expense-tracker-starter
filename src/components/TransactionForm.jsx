@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { capitalize } from '../utils/formatters';
+import { generateNumericId } from '../utils/id';
 
 const DEFAULT_CATEGORIES = [
   'food',
@@ -12,7 +14,6 @@ const DEFAULT_CATEGORIES = [
 
 function TransactionForm({
   onAddTransaction,
-  onAdd,
   categories = DEFAULT_CATEGORIES,
 }) {
   const [description, setDescription] = useState('');
@@ -25,7 +26,7 @@ function TransactionForm({
     if (!description || !amount) return;
 
     const newTransaction = {
-      id: Date.now(),
+      id: generateNumericId(),
       description: description.trim(),
       amount: Number(amount),
       type,
@@ -33,19 +34,13 @@ function TransactionForm({
       date: new Date().toISOString().split('T')[0],
     };
 
-    const addFn = onAddTransaction || onAdd;
-    if (addFn) {
-      addFn(newTransaction);
-    }
+    onAddTransaction?.(newTransaction);
 
     setDescription('');
     setAmount('');
     setType('expense');
     setCategory('food');
   };
-
-  const capitalize = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   return (
     <div className="add-transaction">

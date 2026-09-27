@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import ConfirmationModal from './ConfirmationModal';
+import { capitalize, formatCurrency, formatDate } from '../utils/formatters';
 
 const DEFAULT_CATEGORIES = [
   'food',
@@ -25,56 +26,26 @@ function TransactionList({
   transactions = [],
   categories = DEFAULT_CATEGORIES,
   onDeleteTransaction,
-  onDelete,
 }) {
   const [filterType, setFilterType] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
   const [transactionToDelete, setTransactionToDelete] = useState(null);
 
-  let filteredTransactions = transactions;
-  if (filterType !== 'all') {
-    filteredTransactions = filteredTransactions.filter(
-      (t) => t.type === filterType
-    );
-  }
-  if (filterCategory !== 'all') {
-    filteredTransactions = filteredTransactions.filter(
-      (t) => t.category === filterCategory
-    );
-  }
+  const filteredTransactions = useMemo(() => {
+    let result = transactions;
+    if (filterType !== 'all') {
+      result = result.filter((t) => t.type === filterType);
+    }
+    if (filterCategory !== 'all') {
+      result = result.filter((t) => t.category === filterCategory);
+    }
+    return result;
+  }, [transactions, filterType, filterCategory]);
 
   const handleDeleteConfirm = () => {
     if (transactionToDelete) {
-      const deleteFn = onDeleteTransaction || onDelete;
-      deleteFn?.(transactionToDelete.id);
+      onDeleteTransaction?.(transactionToDelete.id);
       setTransactionToDelete(null);
-    }
-  };
-
-  const capitalize = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-  const formatCurrency = (val) =>
-    Number(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return '';
-    try {
-      const parts = dateStr.split('-');
-      if (parts.length === 3) {
-        const date = new Date(parts[0], parts[1] - 1, parts[2]);
-        return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        });
-      }
-      return dateStr;
-    } catch {
-      return dateStr;
     }
   };
 

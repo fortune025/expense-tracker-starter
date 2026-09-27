@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { formatCurrency, capitalize } from '../utils/formatters';
 import {
   ResponsiveContainer,
   PieChart,
@@ -45,8 +46,7 @@ function SpendingChart({ transactions = [] }) {
 
   const categoryTotals = expenseTransactions.reduce((acc, t) => {
     const rawCategory = t.category || 'other';
-    const formattedCategory =
-      rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase();
+    const formattedCategory = capitalize(rawCategory);
     acc[formattedCategory] = (acc[formattedCategory] || 0) + Number(t.amount);
     return acc;
   }, {});
@@ -60,12 +60,6 @@ function SpendingChart({ transactions = [] }) {
     .sort((a, b) => b.amount - a.amount);
 
   const totalExpense = data.reduce((sum, item) => sum + item.amount, 0);
-
-  const formatCurrency = (val) =>
-    Number(val).toLocaleString('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    });
 
   return (
     <div className="spending-chart-section">
